@@ -69,10 +69,11 @@ if (pids.size === 0) {
 	process.exit();
 }
 
-// If there's no update, there's no need to restart the server
+// If there's no update and there is already a server running,
+// there's no need to restart the server
 if (gitUpdateResult.toLowerCase().includes("up to date")) {
 	console.log(`nayrb repository is up to date. Exiting...`);
-	process.exit();
+	//process.exit();
 }
 
 // If there is a server running, kill it and spawn a new process for the server

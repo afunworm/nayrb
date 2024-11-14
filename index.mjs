@@ -4,6 +4,11 @@ import express from "express";
 import path from "path";
 import "dotenv/config";
 import { EventLogger } from "node-windows";
+import crypto from "crypto";
+
+/**
+ * VARIABLES
+ */
 const base = process.env.base.replace(/\/+$/, "") || "C:\\nayrb";
 
 // Convert exec to a promise-based function
@@ -12,6 +17,18 @@ const run = util.promisify(exec);
 // Express server
 const app = express();
 const port = process.env.port || 2703;
+const key = process.env.key;
+
+/**
+ *
+ * HELPER FUNCTIONS
+ */
+function hash(input) {
+	return crypto
+		.createHash("md5")
+		.update(key + input)
+		.digest("hex");
+}
 
 function fileInfo(filePath) {
 	const basename = path.basename(filePath);
@@ -37,10 +54,16 @@ app.get("/", (req, res) => {
 
 app.get("/:command(*)", async (req, res) => {
 	const command = req.params.command;
+	const challenge = req.query.challenge;
+	const verify = req.query.verify;
 	const fullPath = path.resolve(base + "/" + command);
 	const { extension } = fileInfo(fullPath);
 
 	res.setHeader("Content-Type", "text/plain");
+
+	if (!challenge || !verify || hash(challenge) !== verify) {
+		return res.status(400).send(`Unauthorized.`);
+	}
 
 	if (!["ps1", "js", "mjs"].includes(extension.toLowerCase())) {
 		return res.status(400).send(`Invalid extension ${extension}`);
