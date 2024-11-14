@@ -32,6 +32,8 @@ const spawnServer = async () => {
 
 	// Log it
 	console.log(`Spawned new process with PID: ${newProcess.pid}`);
+	const log = new EventLogger("nayrb Server Started");
+	log.info(`Started nayrb server on port ${port}. PID:${newProcess.pid}`);
 
 	return newProcess;
 };
@@ -85,7 +87,7 @@ if (pids.size === 0) {
 // there's no need to restart the server
 if (gitUpdateResult.toLowerCase().includes("up to date")) {
 	console.log(`nayrb repository is up to date. Exiting...`);
-	//process.exit();
+	process.exit();
 }
 
 // If there is a server running, kill it and spawn a new process for the server
