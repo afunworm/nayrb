@@ -31,8 +31,8 @@ try {
 	console.log("git pull completed successfully.");
 } catch (error) {
 	console.log(error);
-	// const log = new EventLogger("nayrb Repository Update Failed");
-	// log.warn(`Unable to update repository with 'git pull'.\n\n${error}`);
+	const log = new EventLogger("nayrb Repository Update Failed");
+	log.warn(`Unable to update repository with 'git pull'.\n\n${error}`);
 }
 
 /**
