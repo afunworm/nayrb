@@ -1,9 +1,23 @@
+/**
+ * IMPORT STANDARD LIBRARIES
+ */
 import { exec, spawn } from "child_process";
 import util from "util";
-import "dotenv/config";
+import { fileURLToPath } from "url";
 import path from "path";
 import { EventLogger } from "node-windows";
 
+/**
+ * IMPORT .env
+ */
+const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
+const __dirname = path.dirname(__filename); // get the name of the directory
+import dotenv from "dotenv";
+dotenv.config({ path: __dirname + "/.env" });
+
+/**
+ * CONSTANTS & VARIABLES
+ */
 const run = util.promisify(exec);
 const port = process.env.port || 2703;
 const base = process.env.base.replace(/\/+$/, "") || "C:\\nayrb";
@@ -15,8 +29,6 @@ const spawnServer = async () => {
 
 	// Ensure the nwe index.mjs process continues running after the parent exits
 	newProcess.unref();
-
-	console.log(scriptPath);
 
 	// Log it
 	console.log(`Spawned new process with PID: ${newProcess.pid}`);

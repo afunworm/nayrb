@@ -1,13 +1,23 @@
+/**
+ * IMPORT STANDARD LIBRARIES
+ */
 import { exec } from "child_process";
 import util from "util";
 import express from "express";
 import path from "path";
-import "dotenv/config";
 import { EventLogger } from "node-windows";
 import crypto from "crypto";
 
 /**
- * VARIABLES
+ * IMPORT .env
+ */
+const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
+const __dirname = path.dirname(__filename); // get the name of the directory
+import dotenv from "dotenv";
+dotenv.config({ path: __dirname + "/.env" });
+
+/**
+ * CONSTANTS AND VARIABLES
  */
 const base = process.env.base.replace(/\/+$/, "") || "C:\\nayrb";
 
