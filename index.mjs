@@ -3,13 +3,14 @@ import util from "util";
 import express from "express";
 import { EventLogger } from "node-windows";
 import path from "path";
+import "dotenv/config";
 
 // Convert exec to a promise-based function
 const run = util.promisify(exec);
 
 // Express server
 const app = express();
-const port = 2703;
+const port = process.env.port || 2703;
 
 function fileInfo(filePath) {
 	const basename = path.basename(filePath);
@@ -39,14 +40,18 @@ app.get("/:command(*)", async (req, res) => {
 
 	try {
 		// Always update repository for the latest command
-		await run("git pull", { shell: "powershell.exe" }).catch((error) => {
-			const log = new EventLogger("nayrb Repository Update Failed");
-			log.warn("Unable to update repository with 'git pull'.");
-		});
+		await run("git pull", { shell: "powershell.exe" })
+			.then(({ stdout, stderr }) => {
+				console.log("git pull returns");
+				console.log(stdout);
+				console.log(stderr);
+			})
+			.catch((error) => {
+				const log = new EventLogger("nayrb Repository Update Failed");
+				log.warn("Unable to update repository with 'git pull'.");
+			});
 
 		// Execute the command
-		console.log(fullPath);
-		console.log(fullPath.toLowerCase().endsWith("ps1"));
 		if (extension.toLowerCase() === "js" || extension.toLowerCase() === "mjs") {
 			let { stdout, stderr } = await run(`node ${fullPath}`, { shell: "powershell.exe" });
 
