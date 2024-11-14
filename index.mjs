@@ -39,18 +39,6 @@ app.get("/:command(*)", async (req, res) => {
 	}
 
 	try {
-		// Always update repository for the latest command
-		await run("git pull", { shell: "powershell.exe" })
-			.then(({ stdout, stderr }) => {
-				console.log("git pull returns");
-				console.log(stdout);
-				console.log(stderr);
-			})
-			.catch((error) => {
-				const log = new EventLogger("nayrb Repository Update Failed");
-				log.warn("Unable to update repository with 'git pull'.");
-			});
-
 		// Execute the command
 		if (extension.toLowerCase() === "js" || extension.toLowerCase() === "mjs") {
 			let { stdout, stderr } = await run(`node ${fullPath}`, { shell: "powershell.exe" });
