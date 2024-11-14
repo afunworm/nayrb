@@ -4,6 +4,7 @@
 import { exec } from "child_process";
 import util from "util";
 import express from "express";
+import { fileURLToPath } from "url";
 import path from "path";
 import { EventLogger } from "node-windows";
 import crypto from "crypto";
