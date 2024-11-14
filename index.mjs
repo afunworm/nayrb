@@ -20,7 +20,7 @@ dotenv.config({ path: __dirname + "/.env" });
 /**
  * CONSTANTS AND VARIABLES
  */
-const base = process.env.base.replace(/\/+$/, "") || "C:\\nayrb";
+const base = process.env.base.replace(/\/+$/, "") || "C:/nayrb";
 
 // Convert exec to a promise-based function
 const run = util.promisify(exec);

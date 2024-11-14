@@ -20,7 +20,7 @@ dotenv.config({ path: __dirname + "/.env" });
  */
 const run = util.promisify(exec);
 const port = process.env.port || 2703;
-const base = process.env.base.replace(/\/+$/, "") || "C:\\nayrb";
+const base = process.env.base.replace(/\/+$/, "") || "C:/nayrb";
 
 const spawnServer = async () => {
 	// Spawn a new index.mjs process for your custom script
@@ -43,7 +43,7 @@ const spawnServer = async () => {
  */
 let gitUpdateResult = "";
 try {
-	const { stdout } = await run(`cd ${base}; git pull`, { shell: "powershell.exe" });
+	const { stdout } = await run(`cd "${base}"; git pull`, { shell: "powershell.exe" });
 	gitUpdateResult = stdout;
 	console.log("git pull completed successfully.");
 } catch (error) {
@@ -51,6 +51,8 @@ try {
 	const log = new EventLogger("nayrb Repository Update Failed");
 	log.warn(`Unable to update repository with 'git pull'.\n\n${error}`);
 }
+
+process.exit();
 
 /**
  * FIND ANY PIDS THAT IS LISTENING ON PORT ${port}
@@ -102,4 +104,4 @@ for (const pid of pids) {
 console.log(`All processes on port ${port} have been terminated.`);
 
 // Spawn a new index.mjs process
-spawnServer();
+await spawnServer();
