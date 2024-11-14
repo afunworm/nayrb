@@ -1,7 +1,6 @@
 import { exec } from "child_process";
 import util from "util";
 import express from "express";
-import { EventLogger } from "node-windows";
 import path from "path";
 import "dotenv/config";
 
