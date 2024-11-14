@@ -3,6 +3,8 @@ import util from "util";
 import express from "express";
 import path from "path";
 import "dotenv/config";
+import { EventLogger } from "node-windows";
+const base = process.env.base.replace(/\/+$/, "") || "C:\\nayrb";
 
 // Convert exec to a promise-based function
 const run = util.promisify(exec);
@@ -28,10 +30,17 @@ function fileInfo(filePath) {
 	};
 }
 
+app.get("/", (req, res) => {
+	res.setHeader("Content-Type", "text/plain");
+	res.status(200).send("OK");
+});
+
 app.get("/:command(*)", async (req, res) => {
 	const command = req.params.command;
-	const fullPath = path.resolve(command);
+	const fullPath = path.resolve(base + "/" + command);
 	const { extension } = fileInfo(fullPath);
+
+	res.setHeader("Content-Type", "text/plain");
 
 	if (!["ps1", "js", "mjs"].includes(extension.toLowerCase())) {
 		return res.status(400).send(`Invalid extension ${extension}`);
@@ -43,18 +52,20 @@ app.get("/:command(*)", async (req, res) => {
 			let { stdout, stderr } = await run(`node ${fullPath}`, { shell: "powershell.exe" });
 
 			console.log(stdout);
+			return res.status(200).send(`${fullPath} ran successfully.\n---\n${stdout}`);
 		}
 
 		if (extension.toLowerCase() === "ps1") {
 			let { stdout, stderr } = await run(`powershell -File ${fullPath}`, { shell: "powershell.exe" });
 
 			console.log(stdout);
+			return res.status(200).send(`${fullPath} ran successfully.\n---\n${stdout}`);
 		}
-
-		return res.status(200).send(`${fullPath} ran successfully.`);
 	} catch (error) {
 		console.error(error);
-		return res.status(500).send(`Unable to execute ${fullPath}.`);
+		const log = new EventLogger("nayrb Task Failed");
+		log.error(`Unable to complete the task at ${fullPath}.\n\n${error}`);
+		return res.status(500).send(`Unable to execute ${fullPath}.\n---\n${error}`);
 	}
 });
 
