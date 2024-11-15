@@ -38,7 +38,7 @@ try {
  */
 let gitUpdateResult = "";
 try {
-	const command = `cd "${base}"; git pull`;
+	const command = `cd "${base}"; git reset --hard HEAD; git pull`;
 	const { stdout } = await run(command, { shell: "powershell.exe" });
 	gitUpdateResult = stdout;
 	console.log("git pull completed successfully.");
