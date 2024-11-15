@@ -4,17 +4,17 @@
 import { exec } from "child_process";
 import util from "util";
 import express from "express";
-import { fileURLToPath } from "url";
 import path from "path";
-import { EventLogger } from "node-windows";
+import { logError } from "./functions.mjs";
 import crypto from "crypto";
 
 /**
  * IMPORT .env
  */
+import { fileURLToPath } from "url";
+import dotenv from "dotenv";
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename); // get the name of the directory
-import dotenv from "dotenv";
 dotenv.config({ path: __dirname + "/.env" });
 
 /**
@@ -83,22 +83,21 @@ app.get("/:command(*)", async (req, res) => {
 	try {
 		// Execute the command
 		if (extension.toLowerCase() === "js" || extension.toLowerCase() === "mjs") {
-			let { stdout, stderr } = await run(`node ${fullPath}`, { shell: "powershell.exe" });
+			let { stdout } = await run(`node ${fullPath}`, { shell: "powershell.exe" });
 
 			console.log(stdout);
 			return res.status(200).send(`${fullPath} ran successfully.\n---\n${stdout}`);
 		}
 
 		if (extension.toLowerCase() === "ps1") {
-			let { stdout, stderr } = await run(`powershell -File ${fullPath}`, { shell: "powershell.exe" });
+			let { stdout } = await run(`powershell -File ${fullPath}`, { shell: "powershell.exe" });
 
 			console.log(stdout);
 			return res.status(200).send(`${fullPath} ran successfully.\n---\n${stdout}`);
 		}
 	} catch (error) {
 		console.error(error);
-		const log = new EventLogger("nayrb Task Failed");
-		log.error(`Unable to complete the task at ${fullPath}.\n\n${error}`);
+		await logError(`Unable to complete the task at ${fullPath}.\n${error}`);
 		return res.status(500).send(`Unable to execute ${fullPath}.\n---\n${error}`);
 	}
 });

@@ -1,18 +1,18 @@
 /**
  * IMPORT STANDARD LIBRARIES
  */
-import { exec, spawn } from "child_process";
+import { exec } from "child_process";
 import util from "util";
-import { fileURLToPath } from "url";
 import path from "path";
-import { EventLogger } from "node-windows";
+import { spawnServer, logWarn, logError, logInfo } from "./functions.mjs";
 
 /**
  * IMPORT .env
  */
+import dotenv from "dotenv";
+import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename); // get the name of the directory
-import dotenv from "dotenv";
 dotenv.config({ path: __dirname + "/.env" });
 
 /**
@@ -22,37 +22,31 @@ const run = util.promisify(exec);
 const port = process.env.port || 2703;
 const base = process.env.base.replace(/\/+$/, "") || "C:/nayrb";
 
-const spawnServer = async () => {
-	// Spawn a new index.mjs process for your custom script
-	const scriptPath = path.resolve(base + "/index.mjs");
-	const newProcess = spawn("node", [scriptPath], { detached: true, stdio: "ignore" });
-
-	// Ensure the nwe index.mjs process continues running after the parent exits
-	newProcess.unref();
-
-	// Log it
-	console.log(`Spawned new process with PID: ${newProcess.pid}`);
-	const log = new EventLogger("nayrb Server Started");
-	log.info(`Started nayrb server on port ${port}. PID:${newProcess.pid}`);
-
-	return newProcess;
-};
+/**
+ * MARK GIT DIRECTORY AS SAFE SO ALL USERS CAN EXECUTE IT
+ */
+try {
+	await run(`git config --global --add safe.directory ${base}`, { shell: "powershell.exe" });
+	console.log(`Added ${base} to git safe directory.`);
+} catch (error) {
+	console.log(error);
+	await logError(`Unable to add ${base} to git safe directory.\n${error}`);
+}
 
 /**
  * UPDATE GIT REPOSITORY
  */
 let gitUpdateResult = "";
 try {
-	const { stdout } = await run(`cd "${base}"; git pull`, { shell: "powershell.exe" });
+	const command = `cd "${base}"; git pull`;
+	const { stdout } = await run(command, { shell: "powershell.exe" });
 	gitUpdateResult = stdout;
 	console.log("git pull completed successfully.");
+	await logInfo(`'${command}' completed successfully.`);
 } catch (error) {
 	console.log(error);
-	const log = new EventLogger("nayrb Repository Update Failed");
-	log.warn(`Unable to update repository with 'git pull'.\n\n${error}`);
+	await logWarn(`Unable to update repository with 'git pull'.\n${error}`);
 }
-
-process.exit();
 
 /**
  * FIND ANY PIDS THAT IS LISTENING ON PORT ${port}
@@ -75,13 +69,14 @@ try {
 const pids = new Set(
 	PIDResult.split("\n")
 		.map((line) => line.trim().split(/\s+/).pop()) // Get the last part, which is the PID
-		.filter((pid) => pid) // Filter out any empty results
+		.filter((pid) => pid && pid != 0) // Filter out any empty results, also PID must not be 0
 );
 
 // If no server is running, run it
 if (pids.size === 0) {
 	console.log(`No processes found listening on port ${port}. Starting nayrb server...`);
-	spawnServer();
+	await logInfo(`No processes found listening on port ${port}. Starting nayrb server...`);
+	await spawnServer();
 	process.exit();
 }
 
@@ -89,19 +84,20 @@ if (pids.size === 0) {
 // there's no need to restart the server
 if (gitUpdateResult.toLowerCase().includes("up to date")) {
 	console.log(`nayrb repository is up to date. Exiting...`);
+	await logInfo(`nayrb repository is up to date. Exiting...`);
 	process.exit();
 }
 
 // If there is a server running, kill it and spawn a new process for the server
+await logInfo(`Found ${pids.size} process(es) listening on port ${port}.`);
 for (const pid of pids) {
-	if (pid == 0) continue;
-
 	console.log(`Killing process with PID: ${pid} on port ${port}`);
 
 	await run(`taskkill /PID ${pid} /F`);
 }
 
 console.log(`All processes on port ${port} have been terminated.`);
+await logInfo(`All processes on port ${port} have been terminated.`);
 
 // Spawn a new index.mjs process
 await spawnServer();
