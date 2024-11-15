@@ -63,8 +63,9 @@ export function logError(log) {
 	return writeLog("ERRO", log);
 }
 
-export function run() {
-	return util.promisify(exec);
+export async function run(command) {
+	const run = util.promisify(exec);
+	return run(command);
 }
 
 export async function spawnServer() {
