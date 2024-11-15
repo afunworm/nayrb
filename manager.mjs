@@ -24,7 +24,7 @@ const isProduction = process.env.production == "1" ? true : false;
  * MARK GIT DIRECTORY AS SAFE SO ALL USERS CAN EXECUTE IT
  */
 try {
-	await run(`git config --global --add safe.directory ${base}`, { shell: "powershell.exe" });
+	await run(`git config --global --add safe.directory ${base}`);
 	console.log(`Added ${base} to git safe directory.`);
 } catch (error) {
 	console.log(error);
@@ -37,7 +37,7 @@ try {
 let gitUpdateResult = "";
 try {
 	const command = isProduction ? `cd "${base}"; git reset --hard HEAD; git pull` : `cd "${base}"; git pull`;
-	const { stdout } = await run(command, { shell: "powershell.exe" });
+	const { stdout } = await run(command);
 	gitUpdateResult = stdout;
 	console.log("git pull completed successfully.");
 	await logInfo(`'${command}' completed successfully: ${stdout}`);

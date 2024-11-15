@@ -48,14 +48,14 @@ app.get("/:command(*)", async (req, res) => {
 	try {
 		// Execute the command
 		if (extension.toLowerCase() === "js" || extension.toLowerCase() === "mjs") {
-			let { stdout } = await run(`node ${fullPath}`, { shell: "powershell.exe" });
+			let { stdout } = await run(`node ${fullPath}`);
 
 			console.log(stdout);
 			return res.status(200).send(`${fullPath} ran successfully.\n---\n${stdout}`);
 		}
 
 		if (extension.toLowerCase() === "ps1") {
-			let { stdout } = await run(`powershell -File ${fullPath}`, { shell: "powershell.exe" });
+			let { stdout } = await run(`powershell -File ${fullPath}`);
 
 			console.log(stdout);
 			return res.status(200).send(`${fullPath} ran successfully.\n---\n${stdout}`);

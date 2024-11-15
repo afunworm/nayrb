@@ -63,9 +63,9 @@ export function logError(log) {
 	return writeLog("ERRO", log);
 }
 
-export async function run(command, shell) {
+export async function run(command, options = { shell: "powershell.exe" }) {
 	const run = util.promisify(exec);
-	return run(command, shell);
+	return run(command, options);
 }
 
 export async function spawnServer() {
