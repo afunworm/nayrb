@@ -21,6 +21,7 @@ dotenv.config({ path: __dirname + "/.env" });
 const run = util.promisify(exec);
 const port = process.env.port || 2703;
 const base = process.env.base.replace(/\/+$/, "") || "C:/nayrb";
+const isProduction = process.env.production == "1" ? true : false;
 
 /**
  * MARK GIT DIRECTORY AS SAFE SO ALL USERS CAN EXECUTE IT
@@ -38,7 +39,7 @@ try {
  */
 let gitUpdateResult = "";
 try {
-	const command = `cd "${base}"; git reset --hard HEAD; git pull`;
+	const command = isProduction ? `cd "${base}"; git reset --hard HEAD; git pull` : `cd "${base}"; git pull`;
 	const { stdout } = await run(command, { shell: "powershell.exe" });
 	gitUpdateResult = stdout;
 	console.log("git pull completed successfully.");
