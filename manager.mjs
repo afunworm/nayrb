@@ -42,7 +42,7 @@ try {
 	const { stdout } = await run(command, { shell: "powershell.exe" });
 	gitUpdateResult = stdout;
 	console.log("git pull completed successfully.");
-	await logInfo(`'${command}' completed successfully.`);
+	await logInfo(`'${command}' completed successfully: ${stdout}`);
 } catch (error) {
 	console.log(error);
 	await logWarn(`Unable to update repository with 'git pull'.\n${error}`);
