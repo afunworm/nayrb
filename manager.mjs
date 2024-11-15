@@ -1,10 +1,8 @@
 /**
  * IMPORT STANDARD LIBRARIES
  */
-import { exec } from "child_process";
-import util from "util";
 import path from "path";
-import { spawnServer, logWarn, logError, logInfo } from "./functions.mjs";
+import { spawnServer, logWarn, logError, logInfo, run } from "./functions.mjs";
 
 /**
  * IMPORT .env
@@ -18,7 +16,6 @@ dotenv.config({ path: __dirname + "/.env" });
 /**
  * CONSTANTS & VARIABLES
  */
-const run = util.promisify(exec);
 const port = process.env.port || 2703;
 const base = process.env.base.replace(/\/+$/, "") || "C:/nayrb";
 const isProduction = process.env.production == "1" ? true : false;

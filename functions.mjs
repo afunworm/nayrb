@@ -5,6 +5,8 @@ import path from "path";
 import { spawn } from "child_process";
 import fs from "fs/promises";
 import crypto from "crypto";
+import { exec } from "child_process";
+import util from "util";
 
 /**
  * IMPORT .env
@@ -59,6 +61,10 @@ export function logWarn(log) {
 
 export function logError(log) {
 	return writeLog("ERRO", log);
+}
+
+export function run() {
+	return util.promisify(exec);
 }
 
 export async function spawnServer() {

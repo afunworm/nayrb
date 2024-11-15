@@ -1,11 +1,9 @@
 /**
  * IMPORT STANDARD LIBRARIES
  */
-import { exec } from "child_process";
-import util from "util";
 import express from "express";
 import path from "path";
-import { logError, fileInfo, hash } from "./functions.mjs";
+import { logError, fileInfo, hash, run } from "./functions.mjs";
 
 /**
  * IMPORT .env
@@ -20,9 +18,6 @@ dotenv.config({ path: __dirname + "/.env" });
  * CONSTANTS AND VARIABLES
  */
 const base = process.env.base.replace(/\/+$/, "") || "C:/nayrb";
-
-// Convert exec to a promise-based function
-const run = util.promisify(exec);
 
 // Express server
 const app = express();
