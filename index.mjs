@@ -5,8 +5,7 @@ import { exec } from "child_process";
 import util from "util";
 import express from "express";
 import path from "path";
-import { logError } from "./functions.mjs";
-import crypto from "crypto";
+import { logError, fileInfo, hash } from "./functions.mjs";
 
 /**
  * IMPORT .env
@@ -28,35 +27,6 @@ const run = util.promisify(exec);
 // Express server
 const app = express();
 const port = process.env.port || 2703;
-const key = process.env.key;
-
-/**
- *
- * HELPER FUNCTIONS
- */
-function hash(input) {
-	return crypto
-		.createHash("md5")
-		.update(key + input)
-		.digest("hex");
-}
-
-function fileInfo(filePath) {
-	const basename = path.basename(filePath);
-	const extension = path.extname(filePath).replace(".", "");
-	const name = path.basename(filePath, extension).replace(/\.(?=[^.]*$)/, "");
-	const dir = path.dirname(filePath);
-	const fullPath = path.resolve(filePath);
-
-	return {
-		basename,
-		extension,
-		name,
-		path: filePath,
-		dir,
-		fullPath,
-	};
-}
 
 app.get("/", (req, res) => {
 	res.setHeader("Content-Type", "text/plain");

@@ -4,6 +4,7 @@
 import path from "path";
 import { spawn } from "child_process";
 import fs from "fs/promises";
+import crypto from "crypto";
 
 /**
  * IMPORT .env
@@ -19,6 +20,7 @@ dotenv.config({ path: __dirname + "/.env" });
  */
 const base = process.env.base.replace(/\/+$/, "") || "C:/nayrb";
 const port = process.env.port || 2703;
+const key = process.env.key;
 
 /**
  * CREATE LOG FILES IF NOT EXISTS
@@ -72,4 +74,28 @@ export async function spawnServer() {
 	await logInfo(`Started nayrb server on port ${port}. PID: ${newProcess.pid}.`);
 
 	return newProcess;
+}
+
+export function hash(input) {
+	return crypto
+		.createHash("md5")
+		.update(key + input)
+		.digest("hex");
+}
+
+export function fileInfo(filePath) {
+	const basename = path.basename(filePath);
+	const extension = path.extname(filePath).replace(".", "");
+	const name = path.basename(filePath, extension).replace(/\.(?=[^.]*$)/, "");
+	const dir = path.dirname(filePath);
+	const fullPath = path.resolve(filePath);
+
+	return {
+		basename,
+		extension,
+		name,
+		path: filePath,
+		dir,
+		fullPath,
+	};
 }
